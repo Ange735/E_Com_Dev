@@ -60,16 +60,6 @@ $activeNav = 'shop';
 include 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <title>Document</title>
-  
-</body>
-</html>
 <div class="page-hero">
   <div class="container">
     <h1><?= $currentCat ? e($currentCat['icon'].' '.$currentCat['name']) : '🛍 Catalogue' ?></h1>
@@ -194,6 +184,5 @@ include 'includes/header.php';
     </div>
   </div>
 </div>
-</head>
-<body>
+
 <?php include 'includes/footer.php'; ?>

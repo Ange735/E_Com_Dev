@@ -56,8 +56,8 @@ include 'includes/header.php';
 
     <nav class="breadcrumb">
       <a href="/">Accueil</a><span class="sep">/</span>
-      <a href="shop.php">Catalogue</a><span class="sep">/</span>
-      <a href="shop.php?cat=<?= e($p['cat_slug']) ?>"><?= e($p['cat_icon'].' '.$p['cat_name']) ?></a><span class="sep">/</span>
+      <a href="/shop.php">Catalogue</a><span class="sep">/</span>
+      <a href="/shop.php?cat=<?= e($p['cat_slug']) ?>"><?= e($p['cat_icon'].' '.$p['cat_name']) ?></a><span class="sep">/</span>
       <span><?= e($p['name']) ?></span>
     </nav>
 

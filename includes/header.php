@@ -35,19 +35,19 @@ $flash = getFlash();
   <div class="container">
     <div class="nav-inner">
       <!-- Logo -->
-      <a href="index.php" class="nav-logo">
+      <a href="/" class="nav-logo">
         <span>ENSAM</span><span class="nav-logo-dot">●</span><span>Market</span>
       </a>
 
       <!-- Links -->
       <div class="nav-links">
-        <a href="index.php"   class="<?= $activeNav==='home'  ? 'active':'' ?>">Accueil</a>
-        <a href="shop.php"    class="<?= $activeNav==='shop'  ? 'active':'' ?>">Catalogue</a>
+        <a href="/"   class="<?= $activeNav==='home'  ? 'active':'' ?>">Accueil</a>
+        <a href="/shop.php"    class="<?= $activeNav==='shop'  ? 'active':'' ?>">Catalogue</a>
         <?php if ($user && $user['mode_actuel'] === 'seller'): ?>
-        <a href="seller/dashboard.php" class="<?= $activeNav==='seller' ? 'active':'' ?>">Mon Espace Vendeur</a>
+        <a href="/seller/dashboard.php" class="<?= $activeNav==='seller' ? 'active':'' ?>">Mon Espace Vendeur</a>
         <?php endif; ?>
         <?php if ($user && $user['role'] === 'admin'): ?>
-        <a href="admin/index.php" class="<?= $activeNav==='admin' ? 'active':'' ?>">Admin</a>
+        <a href="/admin/index.php" class="<?= $activeNav==='admin' ? 'active':'' ?>">Admin</a>
         <?php endif; ?>
       </div>
 
@@ -82,21 +82,21 @@ $flash = getFlash();
                 <div style="font-size:.72rem;color:var(--muted);"><?= e($user['filiere'] ?? '') ?> · <?= e($user['promo'] ?? '') ?></div>
               </div>
               <div class="dropdown-divider"></div>
-              <a href="account/profile.php"          class="dropdown-item">👤 Mon Profil</a>
-              <a href="buyer/orders.php"              class="dropdown-item">📦 Mes Commandes</a>
-              <a href="buyer/wishlist.php"            class="dropdown-item">❤️ Wishlist</a>
-              <a href="account/switch-mode.php"       class="dropdown-item">🔄 Changer de mode</a>
+              <a href="/account/profile.php"          class="dropdown-item">👤 Mon Profil</a>
+              <a href="/buyer/orders.php"              class="dropdown-item">📦 Mes Commandes</a>
+              <a href="/buyer/wishlist.php"            class="dropdown-item">❤️ Wishlist</a>
+              <a href="/account/switch-mode.php"       class="dropdown-item">🔄 Changer de mode</a>
               <?php if ($user['mode_actuel'] === 'seller'): ?>
-              <a href="seller/dashboard.php"          class="dropdown-item">🏪 Dashboard Vendeur</a>
+              <a href="/seller/dashboard.php"          class="dropdown-item">🏪 Dashboard Vendeur</a>
               <?php endif; ?>
               <div class="dropdown-divider"></div>
-              <a href="auth/logout.php"               class="dropdown-item danger">🚪 Déconnexion</a>
+              <a href="/auth/logout.php"               class="dropdown-item danger">🚪 Déconnexion</a>
             </div>
           </div>
 
         <?php else: ?>
-          <a href="auth/login.php"    class="btn btn-outline btn-sm">Connexion</a>
-          <a href="auth/register.php" class="btn btn-primary btn-sm">S'inscrire</a>
+          <a href="/auth/login.php"    class="btn btn-outline btn-sm">Connexion</a>
+          <a href="/auth/register.php" class="btn btn-primary btn-sm">S'inscrire</a>
         <?php endif; ?>
 
         <!-- Hamburger -->
@@ -110,20 +110,20 @@ $flash = getFlash();
 
 <!-- Mobile nav -->
 <div class="mobile-nav" id="mobile-nav">
-  <a href="index.php">🏠 Accueil</a>
-  <a href="shop.php">🛍 Catalogue</a>
+  <a href="/">🏠 Accueil</a>
+  <a href="/shop.php">🛍 Catalogue</a>
   <?php if ($user): ?>
-  <a href="buyer/cart.php">🛒 Panier (<?= $cartCount ?>)</a>
-  <a href="buyer/orders.php">📦 Mes commandes</a>
-  <a href="account/profile.php">👤 Mon profil</a>
-  <a href="account/switch-mode.php">🔄 Changer de mode</a>
+  <a href="/buyer/cart.php">🛒 Panier (<?= $cartCount ?>)</a>
+  <a href="/buyer/orders.php">📦 Mes commandes</a>
+  <a href="/account/profile.php">👤 Mon profil</a>
+  <a href="/account/switch-mode.php">🔄 Changer de mode</a>
   <?php if ($user['mode_actuel'] === 'seller'): ?>
-  <a href="seller/dashboard.php">🏪 Espace Vendeur</a>
+  <a href="/seller/dashboard.php">🏪 Espace Vendeur</a>
   <?php endif; ?>
-  <a href="auth/logout.php">🚪 Déconnexion</a>
+  <a href="/auth/logout.php">🚪 Déconnexion</a>
   <?php else: ?>
-  <a href="auth/login.php">🔑 Connexion</a>
-  <a href="auth/register.php">✏️ S'inscrire</a>
+  <a href="/auth/login.php">🔑 Connexion</a>
+  <a href="/auth/register.php">✏️ S'inscrire</a>
   <?php endif; ?>
 </div>
 

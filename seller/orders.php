@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf($_POST['csrf'] ?? '')) {
             flash('success', 'Statut mis à jour.');
         }
     }
-    header('Location: /seller/orders.php'); exit;
+    header('Location: ' . BASE_URL . 'seller/orders.php'); exit;
 }
 
 $orders = $pdo->prepare("
@@ -47,7 +47,7 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="page-wrap">
   <div class="container">
-    <nav class="breadcrumb"><a href="/seller/dashboard.php">Dashboard</a><span class="sep">/</span><span>Commandes reçues</span></nav>
+    <nav class="breadcrumb"><a href="<?= BASE_URL ?>seller/dashboard.php">Dashboard</a><span class="sep">/</span><span>Commandes reçues</span></nav>
     <h1 class="section-title">📦 Commandes reçues</h1>
 
     <?php if (empty($orders)): ?>

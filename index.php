@@ -5,8 +5,13 @@
 session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
-
-
+// Récupérer la wishlist de l'utilisateur pour afficher l'état des boutons
+$wishlist = [];
+if (isLoggedIn()) {
+    $stmt = $pdo->prepare("SELECT product_id FROM wishlist WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $wishlist = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
 
 // Récupérer les derniers produits actifs
 $stmt = $pdo->query("
@@ -43,51 +48,36 @@ $pageTitle = 'Accueil';
 $activeNav = 'home';
 include 'includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <title>Document</title>
-</head>
-
-<body>
 
   <!-- ══ HERO ══════════════════════════════════════════════════ -->
-  <section
-    style="padding:calc(var(--nav-h) + 4rem) 0 5rem;background:radial-gradient(ellipse 70% 60% at 30% 50%,rgba(26,122,74,.1) 0%,transparent 70%);">
+  <section class="hero">
     <div class="container">
       <div style="max-width:680px;" data-reveal>
-        <div
-          style="display:inline-flex;align-items:center;gap:.6rem;background:rgba(26,122,74,.1);border:1px solid rgba(26,122,74,.3);border-radius:20px;padding:.3rem .9rem;font-size:.75rem;color:var(--green-lt);margin-bottom:1.5rem;letter-spacing:.06em;">
+        <div class="badge">
           🎓 Réservé aux étudiants ENSAM
         </div>
-        <h1
-          style="font-family:var(--font-head);font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;color:var(--white);line-height:1.1;margin-bottom:1.2rem;">
+        <h1>
           La marketplace<br><span style="color:var(--green-lt);">des étudiants</span> ENSAM
         </h1>
         <p style="font-size:1.05rem;color:var(--text);max-width:500px;margin-bottom:2rem;line-height:1.7;">
           Achète et vends livres, matériel, vêtements et services entre étudiants. Simple, rapide, entre vous.
         </p>
         <div style="display:flex;gap:1rem;flex-wrap:wrap;">
-          <a href="shop.php" class="btn btn-primary btn-lg">Explorer le catalogue</a>
+          <a href="<?= BASE_URL ?>shop.php" class="btn btn-primary btn-lg">Explorer le catalogue</a>
           <?php if (!isLoggedIn()): ?>
-            <a href="auth/register.php" class="btn btn-outline btn-lg">Rejoindre la communauté</a>
+            <a href="<?= BASE_URL ?>auth/register.php" class="btn btn-outline btn-lg">Rejoindre la communauté</a>
           <?php else: ?>
-            <a href="seller/product-add.php" class="btn btn-gold btn-lg">+ Vendre un article</a>
+            <a href="<?= BASE_URL ?>seller/product-add.php" class="btn btn-gold btn-lg">+ Vendre un article</a>
           <?php endif; ?>
         </div>
       </div>
 
       <!-- Stats -->
-      <div style="display:flex;gap:2.5rem;margin-top:3.5rem;flex-wrap:wrap;" data-reveal>
+      <div class="stats" data-reveal>
         <?php $statsArr = [['🎓', 'Étudiants', $stats['total_users']], ['📦', 'Articles en vente', $stats['total_products']], ['✅', 'Échanges réalisés', $stats['total_orders']]]; ?>
         <?php foreach ($statsArr as [$icon, $label, $val]): ?>
           <div>
-            <div style="font-family:var(--font-head);font-size:2rem;font-weight:800;color:var(--white);"><?= $icon ?>
-              <?= number_format($val) ?></div>
+            <div><?= $icon ?> <?= number_format($val) ?></div>
             <div style="font-size:.78rem;color:var(--muted);letter-spacing:.05em;"><?= $label ?></div>
           </div>
         <?php endforeach; ?>
@@ -96,19 +86,18 @@ include 'includes/header.php';
   </section>
 
   <!-- ══ CATEGORIES ════════════════════════════════════════════ -->
-  <section style="padding:4rem 0;background:var(--deep);">
+  <section style="padding:4rem 0;">
     <div class="container">
       <div class="section-header" data-reveal>
         <h2 class="section-title">Parcourir par catégorie</h2>
-        <a href="shop.php" class="btn btn-outline btn-sm">Tout voir →</a>
+        <a href="<?= BASE_URL ?>shop.php" class="btn btn-outline btn-sm">Tout voir →</a>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;">
+      <div class="categories-grid">
         <?php foreach ($categories as $i => $cat): ?>
-          <a href="shop.php?cat=<?= e($cat['slug']) ?>" class="card"
-            style="text-align:center;text-decoration:none;padding:1.2rem 1rem;" data-reveal data-delay="<?= $i + 1 ?>">
+          <a href="<?= BASE_URL ?>shop.php?cat=<?= e($cat['slug']) ?>" data-reveal data-delay="<?= $i + 1 ?>">
             <div style="font-size:2rem;margin-bottom:.5rem;"><?= $cat['icon'] ?></div>
-            <div style="font-size:.82rem;font-weight:600;color:var(--light);"><?= e($cat['name']) ?></div>
-            <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem;"><?= $cat['product_count'] ?>
+            <div><?= e($cat['name']) ?></div>
+            <div class="muted"><?= $cat['product_count'] ?>
               article<?= $cat['product_count'] != 1 ? 's' : '' ?></div>
           </a>
         <?php endforeach; ?>
@@ -121,13 +110,13 @@ include 'includes/header.php';
     <div class="container">
       <div class="section-header" data-reveal>
         <h2 class="section-title">Dernières annonces 🔥</h2>
-        <a href="shop.php" class="btn btn-outline btn-sm">Voir tout →</a>
+        <a href="<?= BASE_URL ?>shop.php" class="btn btn-outline btn-sm">Voir tout →</a>
       </div>
 
       <?php if (empty($latestProducts)): ?>
         <div style="text-align:center;padding:4rem;color:var(--muted);">
           <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
-          <p>Aucune annonce pour l'instant. <a href="seller/product-add.php" style="color:var(--green-lt);">Sois le
+          <p>Aucune annonce pour l'instant. <a href="<?= BASE_URL ?>seller/product-add.php" style="color:var(--green-lt);">Sois le
               premier à vendre !</a></p>
         </div>
       <?php else: ?>
@@ -138,11 +127,15 @@ include 'includes/header.php';
             ?>
             <div class="product-card" data-reveal data-delay="<?= ($i % 4) + 1 ?>">
               <div class="product-img-wrap">
-                <a href="product.php?id=<?= $p['id'] ?>">
+                <a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>">
                   <img src="<?= e($img) ?>" alt="<?= e($p['name']) ?>" loading="lazy" />
                 </a>
-                <?php if (isLoggedIn()): ?>
-                  <button class="product-wish" data-wish="<?= $p['id'] ?>" title="Wishlist">♡</button>
+                <?php if (isLoggedIn() && $p['seller_id'] != $_SESSION['user_id']):
+                  $isWished = in_array($p['id'], $wishlist);
+                ?>
+                  <button class="product-wish <?= $isWished ? 'active' : '' ?>" data-wish="<?= $p['id'] ?>" title="Ajouter à la wishlist">
+                    <?= $isWished ? '♥' : '♡' ?>
+                  </button>
                 <?php endif; ?>
                 <div class="product-badge">
                   <span
@@ -158,7 +151,7 @@ include 'includes/header.php';
                 <div class="product-price"><?= formatPrice((float) $p['price']) ?></div>
               </div>
               <div class="product-footer">
-                <a href="product.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir l'annonce</a>
+                <a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir l'annonce</a>
               </div>
             </div>
           <?php endforeach; ?>
@@ -169,27 +162,21 @@ include 'includes/header.php';
 
   <!-- ══ CTA vendeur ════════════════════════════════════════════ -->
   <?php if (!isLoggedIn() || currentUser()['mode_actuel'] === 'buyer'): ?>
-    <section style="background:var(--deep);padding:5rem 0;text-align:center;">
+    <section class="cta-vendeur">
       <div class="container-sm">
         <div data-reveal>
           <div style="font-size:3rem;margin-bottom:1rem;">🏪</div>
-          <h2
-            style="font-family:var(--font-head);font-size:2.2rem;font-weight:800;color:var(--white);margin-bottom:.8rem;">
-            Tu as des articles à vendre ?</h2>
+          <h2>Tu as des articles à vendre ?</h2>
           <p style="color:var(--text);margin-bottom:2rem;">Cours, polycopiés, matériel, vêtements… publie ton annonce en 2
             minutes.</p>
           <?php if (isLoggedIn()): ?>
-            <a href="account/switch-mode.php" class="btn btn-gold btn-lg">Devenir vendeur →</a>
+            <a href="<?= BASE_URL ?>account/switch-mode.php" class="btn btn-gold btn-lg">Devenir vendeur →</a>
           <?php else: ?>
-            <a href="auth/register.php" class="btn btn-gold btn-lg">Créer un compte gratuit →</a>
+            <a href="<?= BASE_URL ?>auth/register.php" class="btn btn-gold btn-lg">Créer un compte gratuit →</a>
           <?php endif; ?>
         </div>
       </div>
     </section>
-  </body>
-
-  </html>
-
-<?php endif; ?>
+  <?php endif; ?>
 
 <?php include 'includes/footer.php'; ?>

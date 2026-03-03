@@ -1,48 +1,49 @@
-<?php /** includes/footer.php */ ?>
-</main>
+<!-- Mobile Nav Menu -->
+<div class="mobile-nav">
+    <a href="<?= BASE_URL ?>index.php">Accueil</a>
+    <a href="<?= BASE_URL ?>shop.php">Catalogue</a>
+    <?php if (isLoggedIn()): ?>
+        <a href="<?= BASE_URL ?>buyer/orders.php">Mes Commandes</a>
+        <a href="<?= BASE_URL ?>account/profile.php">Mon Profil</a>
+        <a href="<?= BASE_URL ?>auth/logout.php" style="color:#ff5c5c;">Déconnexion</a>
+    <?php else: ?>
+        <a href="<?= BASE_URL ?>auth/login.php">Connexion</a>
+        <a href="<?= BASE_URL ?>auth/register.php">Inscription</a>
+    <?php endif; ?>
+</div>
 
+<!-- Footer -->
 <footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="nav-logo" style="margin-bottom:1rem;">ENSAM<span style="color:var(--green)">●</span>Market</div>
-        <p style="font-size:.83rem;color:var(--muted);max-width:240px;line-height:1.6;">La marketplace des étudiants de l'École Nationale Supérieure des Arts et Métiers.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Catalogue</h4>
-        <ul>
-          <li><a href="/shop.php?cat=livres">Livres & Cours</a></li>
-          <li><a href="/shop.php?cat=electronique">Électronique</a></li>
-          <li><a href="/shop.php?cat=vetements">Vêtements</a></li>
-          <li><a href="/shop.php?cat=services">Services</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Mon Compte</h4>
-        <ul>
-          <li><a href="/auth/login.php">Connexion</a></li>
-          <li><a href="/auth/register.php">S'inscrire</a></li>
-          <li><a href="/buyer/orders.php">Mes commandes</a></li>
-          <li><a href="/seller/dashboard.php">Espace vendeur</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Aide</h4>
-        <ul>
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Règles d'utilisation</a></li>
-          <li><a href="#">Signaler un problème</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </div>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="nav-logo footer-logo">ENSAM<span>Market</span><span class="nav-logo-dot">●</span></div>
+                <p style="margin-top:1rem;color:var(--muted);line-height:1.6;">
+                    La plateforme d'échange dédiée aux étudiants de l'ENSAM. Achetez, vendez, échangez en toute confiance.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Liens rapides</h4>
+                <ul>
+                    <li><a href="<?= BASE_URL ?>index.php">Accueil</a></li>
+                    <li><a href="<?= BASE_URL ?>shop.php">Catalogue</a></li>
+                    <?php if (!isLoggedIn()): ?>
+                        <li><a href="<?= BASE_URL ?>auth/register.php">Inscription</a></li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="<?= BASE_URL ?>faq.php">FAQ</a></li>
+                    <li><a href="<?= BASE_URL ?>regles.php">Règles de la communauté</a></li>
+                    <li><a href="<?= BASE_URL ?>contact.php">Contact BDE</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>&copy; <?= date('Y') ?> ENSAM Market. Projet étudiant.</div>
+            <div>I & B</div>
+        </div>
     </div>
-    <div class="footer-bottom">
-      <span>&copy; <?= date('Y') ?> ENSAM Market — Tous droits réservés</span>
-      <span>Fait avec ❤️ par et pour les étudiants ENSAM</span>
-    </div>
-  </div>
 </footer>
-
-<script src="/assets/js/main.js" defer></script>
-</body>
-</html>

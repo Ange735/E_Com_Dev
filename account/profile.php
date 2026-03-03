@@ -40,7 +40,7 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="page-wrap">
   <div class="container-sm">
-    <nav class="breadcrumb"><a href="/">Accueil</a><span class="sep">/</span><span>Mon Profil</span></nav>
+    <nav class="breadcrumb"><a href="<?= BASE_URL ?>index.php">Accueil</a><span class="sep">/</span><span>Mon Profil</span></nav>
     <h1 class="section-title">👤 Mon Profil</h1>
 
     <?php if ($success): ?><div class="alert alert-success">✓ Profil mis à jour avec succès.</div><?php endif; ?>
@@ -98,8 +98,8 @@ include __DIR__ . '/../includes/header.php';
     </form>
 
     <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
-      <a href="/account/switch-mode.php" class="btn btn-secondary">🔄 Changer de mode (Acheteur/Vendeur)</a>
-      <a href="/account/settings.php" class="btn btn-secondary">⚙️ Paramètres</a>
+      <a href="<?= BASE_URL ?>account/switch-mode.php" class="btn btn-secondary">🔄 Changer de mode (Acheteur/Vendeur)</a>
+      <a href="<?= BASE_URL ?>account/settings.php" class="btn btn-secondary">⚙️ Paramètres</a>
     </div>
   </div>
 </div>

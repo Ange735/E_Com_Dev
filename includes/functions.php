@@ -3,6 +3,8 @@
  * includes/functions.php — Fonctions utilitaires globales
  */
 
+require_once __DIR__ . '/config.php';
+
 // ── Sécurité ──────────────────────────────────────────────────
 function e(string $str): string {
     return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
@@ -44,10 +46,10 @@ function isAdmin(): bool {
     return isLoggedIn() && ($_SESSION['user']['role'] ?? '') === 'admin';
 }
 
-function requireLogin(string $redirect = '/auth/login.php'): void {
+function requireLogin(string $redirect = 'auth/login.php'): void {
     if (!isLoggedIn()) {
         $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
-        header('Location: ' . $redirect);
+        header('Location: ' . BASE_URL . $redirect);
         exit;
     }
 }
@@ -55,7 +57,7 @@ function requireLogin(string $redirect = '/auth/login.php'): void {
 function requireSeller(): void {
     requireLogin();
     if (!isSeller()) {
-        header('Location: /account/switch-mode.php?need=seller');
+        header('Location: ' . BASE_URL . 'account/switch-mode.php?need=seller');
         exit;
     }
 }
@@ -63,7 +65,7 @@ function requireSeller(): void {
 function requireAdmin(): void {
     requireLogin();
     if (!isAdmin()) {
-        header('Location: /index.php?error=unauthorized');
+        header('Location: ' . BASE_URL . 'index.php?error=unauthorized');
         exit;
     }
 }
@@ -118,10 +120,16 @@ function uploadProductImage(array $file, int $sellerId): ?string {
 
     $ext      = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = 'prod_' . $sellerId . '_' . uniqid() . '.' . strtolower($ext);
-    $dest     = __DIR__ . '/../assets/uploads/products/' . $filename;
+    $uploadDir = __DIR__ . '/../assets/uploads/products/';
+    $dest     = $uploadDir . $filename;
+
+    // Créer le dossier de téléversement s'il n'existe pas
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
 
     if (move_uploaded_file($file['tmp_name'], $dest)) {
-        return '/assets/uploads/products/' . $filename;
+        return BASE_URL . 'assets/uploads/products/' . $filename;
     }
     return null;
 }

@@ -61,7 +61,7 @@ include __DIR__ . '/../includes/header.php';
         <h1 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800;color:var(--white);">🏪 Mon Espace Vendeur</h1>
         <p style="color:var(--muted);font-size:.88rem;">Bonjour, <?= e($_SESSION['user']['prenom']) ?> 👋</p>
       </div>
-      <a href="/seller/product-add.php" class="btn btn-primary">+ Nouvelle annonce</a>
+      <a href="<?= BASE_URL ?>seller/product-add.php" class="btn btn-primary">+ Nouvelle annonce</a>
     </div>
 
     <!-- Stats -->
@@ -87,7 +87,7 @@ include __DIR__ . '/../includes/header.php';
       <div class="card">
         <div class="section-header" style="margin-bottom:1rem;">
           <h3 class="card-title">📦 Dernières commandes</h3>
-          <a href="/seller/orders.php" class="btn btn-secondary btn-sm">Tout voir</a>
+          <a href="<?= BASE_URL ?>seller/orders.php" class="btn btn-secondary btn-sm">Tout voir</a>
         </div>
         <?php if (empty($recentOrders)): ?>
         <p style="color:var(--muted);font-size:.85rem;">Aucune commande reçue.</p>
@@ -111,10 +111,10 @@ include __DIR__ . '/../includes/header.php';
       <div class="card">
         <div class="section-header" style="margin-bottom:1rem;">
           <h3 class="card-title">📋 Mes annonces</h3>
-          <a href="/seller/products.php" class="btn btn-secondary btn-sm">Tout gérer</a>
+          <a href="<?= BASE_URL ?>seller/products.php" class="btn btn-secondary btn-sm">Tout gérer</a>
         </div>
         <?php if (empty($myProducts)): ?>
-        <p style="color:var(--muted);font-size:.85rem;">Aucune annonce. <a href="/seller/product-add.php" style="color:var(--green-lt);">Ajouter la première</a></p>
+        <p style="color:var(--muted);font-size:.85rem;">Aucune annonce. <a href="<?= BASE_URL ?>seller/product-add.php" style="color:var(--green-lt);">Ajouter la première</a></p>
         <?php else: ?>
         <?php foreach ($myProducts as $p):
           $imgs = json_decode($p['images']??'[]',true);
@@ -132,7 +132,7 @@ include __DIR__ . '/../includes/header.php';
           </div>
           <?php $sc = match($p['status']) { 'active'=>'green','pending'=>'gold',default=>'red' }; ?>
           <span class="badge badge-<?= $sc ?>" style="font-size:.65rem;"><?= statusLabel($p['status']) ?></span>
-          <a href="/seller/product-edit.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm" style="padding:.3rem .6rem;">✏️</a>
+          <a href="<?= BASE_URL ?>seller/product-edit.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm" style="padding:.3rem .6rem;">✏️</a>
         </div>
         <?php endforeach; ?>
         <?php endif; ?>

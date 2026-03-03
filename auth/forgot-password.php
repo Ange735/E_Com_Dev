@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Mot de passe oublié — ENSAM Market</title>
-  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css"/>
 </head>
 <body>
 <div class="auth-wrap">
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </form>
     <?php endif; ?>
 
-    <p class="auth-switch"><a href="/auth/login.php">← Retour à la connexion</a></p>
+    <p class="auth-switch"><a href="<?= BASE_URL ?>auth/login.php">← Retour à la connexion</a></p>
   </div>
 </div>
 </body>

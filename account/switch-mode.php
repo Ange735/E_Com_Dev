@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && verifyCsrf($_POST['csrf'] ?? '')) {
     $stmt->execute([$userId]);
     $_SESSION['user'] = $stmt->fetch();
     $dest = $newMode === 'seller' ? '/seller/dashboard.php' : '/index.php';
+    $dest = $newMode === 'seller' ? BASE_URL . 'seller/dashboard.php' : BASE_URL . 'index.php';
     flash('success', 'Mode basculé : ' . ($newMode === 'seller' ? 'Vendeur 🏪' : 'Acheteur 🛍') . ' !');
     header('Location: ' . $dest); exit;
 }
@@ -57,7 +58,7 @@ include __DIR__ . '/../includes/header.php';
         Passer en mode <?= $user['mode_actuel']==='seller' ? 'Acheteur 🛍' : 'Vendeur 🏪' ?>
       </button>
     </form>
-    <div style="margin-top:1rem;"><a href="/account/profile.php" style="color:var(--muted);font-size:.83rem;">← Retour au profil</a></div>
+    <div style="margin-top:1rem;"><a href="<?= BASE_URL ?>account/profile.php" style="color:var(--muted);font-size:.83rem;">← Retour au profil</a></div>
   </div>
 </div>
 

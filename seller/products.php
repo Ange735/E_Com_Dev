@@ -27,17 +27,17 @@ include __DIR__ . '/../includes/header.php';
   <div class="container">
     <div class="section-header">
       <div>
-        <nav class="breadcrumb"><a href="/seller/dashboard.php">Dashboard</a><span class="sep">/</span><span>Mes annonces</span></nav>
+        <nav class="breadcrumb"><a href="<?= BASE_URL ?>seller/dashboard.php">Dashboard</a><span class="sep">/</span><span>Mes annonces</span></nav>
         <h1 class="section-title" style="margin-bottom:0;">📋 Mes annonces</h1>
       </div>
-      <a href="/seller/product-add.php" class="btn btn-primary">+ Nouvelle annonce</a>
+      <a href="<?= BASE_URL ?>seller/product-add.php" class="btn btn-primary">+ Nouvelle annonce</a>
     </div>
 
     <?php if (empty($products)): ?>
     <div style="text-align:center;padding:4rem;color:var(--muted);">
       <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
       <p style="margin-bottom:1.5rem;">Aucune annonce pour l'instant.</p>
-      <a href="/seller/product-add.php" class="btn btn-primary">Créer ma première annonce</a>
+      <a href="<?= BASE_URL ?>seller/product-add.php" class="btn btn-primary">Créer ma première annonce</a>
     </div>
     <?php else: ?>
     <div class="table-wrap">
@@ -58,7 +58,7 @@ include __DIR__ . '/../includes/header.php';
               <div style="width:44px;height:44px;background:var(--deep);border-radius:4px;display:flex;align-items:center;justify-content:center;">📦</div>
               <?php endif; ?>
             </td>
-            <td><a href="/product.php?id=<?= $p['id'] ?>" style="color:var(--light);font-weight:600;" target="_blank"><?= e($p['name']) ?></a></td>
+            <td><a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>" style="color:var(--light);font-weight:600;" target="_blank"><?= e($p['name']) ?></a></td>
             <td style="color:var(--muted);"><?= e($p['cat_name'] ?? '—') ?></td>
             <td style="color:var(--gold);font-weight:600;"><?= formatPrice((float)$p['price']) ?></td>
             <td><?= $p['stock'] ?></td>
@@ -74,8 +74,8 @@ include __DIR__ . '/../includes/header.php';
             <td><?= $p['views'] ?></td>
             <td>
               <div style="display:flex;gap:.4rem;">
-                <a href="/seller/product-edit.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm">✏️</a>
-                <form method="post" action="/seller/product-delete.php" onsubmit="return confirm('Supprimer cette annonce ?')">
+                <a href="<?= BASE_URL ?>seller/product-edit.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm">✏️</a>
+                <form method="post" action="<?= BASE_URL ?>seller/product-delete.php" onsubmit="return confirm('Supprimer cette annonce ?')">
                   <input type="hidden" name="csrf" value="<?= csrfToken() ?>" />
                   <input type="hidden" name="product_id" value="<?= $p['id'] ?>" />
                   <button type="submit" class="btn btn-danger btn-sm">🗑</button>

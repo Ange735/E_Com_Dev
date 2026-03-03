@@ -26,13 +26,13 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="page-wrap">
   <div class="container">
-    <nav class="breadcrumb"><a href="/">Accueil</a><span class="sep">/</span><span>Ma Wishlist</span></nav>
+    <nav class="breadcrumb"><a href="<?= BASE_URL ?>index.php">Accueil</a><span class="sep">/</span><span>Ma Wishlist</span></nav>
     <h1 class="section-title">❤️ Ma Wishlist <small style="font-size:.9rem;color:var(--muted);font-family:var(--font-body);">(<?= count($wishlist) ?>)</small></h1>
 
     <?php if (empty($wishlist)): ?>
     <div style="text-align:center;padding:4rem;color:var(--muted);">
       <div style="font-size:3rem;margin-bottom:1rem;">🤍</div>
-      <p>Ta wishlist est vide. <a href="/shop.php" style="color:var(--green-lt);">Explorer les annonces</a></p>
+      <p>Ta wishlist est vide. <a href="<?= BASE_URL ?>shop.php" style="color:var(--green-lt);">Explorer les annonces</a></p>
     </div>
     <?php else: ?>
     <div class="products-grid">
@@ -42,7 +42,7 @@ include __DIR__ . '/../includes/header.php';
       ?>
       <div class="product-card" data-reveal>
         <div class="product-img-wrap">
-          <a href="/product.php?id=<?= $p['id'] ?>"><img src="<?= e($img) ?>" alt="<?= e($p['name']) ?>" loading="lazy"/></a>
+          <a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>"><img src="<?= e($img) ?>" alt="<?= e($p['name']) ?>" loading="lazy"/></a>
           <button class="product-wish active" data-wish="<?= $p['id'] ?>">❤️</button>
         </div>
         <div class="product-info">
@@ -51,7 +51,7 @@ include __DIR__ . '/../includes/header.php';
           <div class="product-seller">par <?= e($p['prenom'].' '.$p['nom']) ?></div>
           <div class="product-price"><?= formatPrice((float)$p['price']) ?></div>
         </div>
-        <div class="product-footer"><a href="/product.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir l'annonce</a></div>
+        <div class="product-footer"><a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir l'annonce</a></div>
       </div>
       <?php endforeach; ?>
     </div>

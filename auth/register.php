@@ -6,7 +6,7 @@ session_start();
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-if (isLoggedIn()) { header('Location: ../index.php'); exit; }
+if (isLoggedIn()) { header('Location: ' . BASE_URL . 'index.php'); exit; }
 
 $errors = [];
 $values = ['nom'=>'','prenom'=>'','email'=>'','filiere'=>'','promo'=>''];
@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (strlen($password) < 8)    $errors[] = 'Mot de passe : minimum 8 caractères.';
     if ($password !== $confirm)   $errors[] = 'Les mots de passe ne correspondent pas.';
     if (!isset($filieres[$values['filiere']])) $errors[] = 'Filière invalide.';
+    if (empty($values['promo']) || !in_array($values['promo'], $promos)) $errors[] = 'Promotion invalide.';
 
     if (empty($errors)) {
         // Vérifier email unique
@@ -45,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash  = password_hash($password, PASSWORD_BCRYPT, ['cost'=>12]);
             $token = generateToken();
 
-            $stmt = $pdo->prepare("INSERT INTO users (nom,prenom,email,password_hash,filiere,promo,token) VALUES (?,?,?,?,?,?,?)");
-            $stmt->execute([$values['nom'],$values['prenom'],$values['email'],$hash,$values['filiere'],$values['promo'],$token]);
+            $stmt = $pdo->prepare("INSERT INTO users (nom,prenom,email,password_hash,filiere,promo,token,role,mode_actuel) VALUES (?,?,?,?,?,?,?,?,?)");
+            $stmt->execute([$values['nom'],$values['prenom'],$values['email'],$hash,$values['filiere'],$values['promo'],$token,'student','buyer']);
 
             $newId = (int)$pdo->lastInsertId();
 
@@ -57,8 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user']    = $user;
 
-            flash('success', 'Bienvenue ' . $user['prenom'] . ' ! Votre compte a été créé.');
-            header('Location: /index.php');
+            flash('success', 'Bienvenue ' . e($user['prenom']) . ' ! Votre compte a été créé.');
+            header('Location: ' . BASE_URL . 'index.php');
             exit;
         }
     }
@@ -71,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Inscription — ENSAM Market</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="assets/css/style.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css"/>
 </head>
 <body>
 <div class="auth-wrap">
@@ -118,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="form-group">
           <label class="form-label">Promotion <span>*</span></label>
-          <select class="form-control" name="promo">
+          <select class="form-control" name="promo" required>
             <option value="">— Année —</option>
             <?php foreach ($promos as $p): ?>
             <option value="<?= $p ?>" <?= $values['promo']===$p ? 'selected':'' ?>><?= $p ?></option>
@@ -140,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <button type="submit" class="btn btn-primary btn-full btn-lg">Créer mon compte 🎓</button>
     </form>
 
-    <p class="auth-switch">Déjà inscrit ? <a href="/auth/login.php">Se connecter</a></p>
+    <p class="auth-switch">Déjà inscrit ? <a href="<?= BASE_URL ?>auth/login.php">Se connecter</a></p>
   </div>
 </div>
 </body>

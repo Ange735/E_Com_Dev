@@ -18,8 +18,17 @@ $prod = $stmt->fetch();
 
 if (!$prod || $prod['status'] !== 'active') { echo json_encode(['error'=>'Produit indisponible']); exit; }
 if ($prod['seller_id'] == $uid)             { echo json_encode(['error'=>'Tu ne peux pas acheter ton propre article']); exit; }
-if ($prod['stock'] < $qty)                  { echo json_encode(['error'=>'Stock insuffisant']); exit; }
 
-$pdo->prepare("INSERT INTO cart_items (user_id, product_id, qty) VALUES (?,?,?) ON DUPLICATE KEY UPDATE qty = qty + VALUES(qty)")->execute([$uid,$pid,$qty]);
+// Vérifier le stock en incluant la quantité déjà dans le panier
+$stmt = $pdo->prepare("SELECT qty FROM cart_items WHERE user_id = ? AND product_id = ?");
+$stmt->execute([$uid, $pid]);
+$currentQty = (int)$stmt->fetchColumn();
+
+if ($prod['stock'] < ($currentQty + $qty)) {
+    echo json_encode(['error' => 'Stock insuffisant. ' . $prod['stock'] . ' en stock, ' . $currentQty . ' dans votre panier.']);
+    exit;
+}
+
+$pdo->prepare("INSERT INTO cart_items (user_id, product_id, qty) VALUES (?,?,?) ON DUPLICATE KEY UPDATE qty = qty + VALUES(qty)")->execute([$uid, $pid, $qty]);
 $count = getCartCount($pdo, $uid);
 echo json_encode(['success'=>true, 'cart_count'=>$count]);

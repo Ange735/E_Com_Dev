@@ -41,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $stmt = $pdo->prepare("INSERT INTO products (seller_id,category_id,name,description,price,images,stock,condition_p,status) VALUES (?,?,?,?,?,?,?,?,?)");
-        $stmt->execute([$sellerId,$values['category_id'],$values['name'],$values['description'],$values['price'],json_encode($imageUrls),$values['stock'],$values['condition_p'],'pending']);
+        $stmt->execute([$sellerId,$values['category_id'],$values['name'],$values['description'],$values['price'],json_encode($imageUrls),$values['stock'],$values['condition_p'],'active']);
         $newId = (int)$pdo->lastInsertId();
-        flash('success', '✅ Annonce publiée ! Elle sera visible après validation.');
-        header('Location: /seller/products.php');
+        flash('success', '✅ Annonce publiée avec succès !');
+        header('Location: ' . BASE_URL . 'seller/products.php');
         exit;
     }
 }
@@ -57,8 +57,8 @@ include __DIR__ . '/../includes/header.php';
 <div class="page-wrap">
   <div class="container-md">
     <nav class="breadcrumb">
-      <a href="/seller/dashboard.php">Dashboard</a><span class="sep">/</span>
-      <a href="/seller/products.php">Mes annonces</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>seller/dashboard.php">Dashboard</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>seller/products.php">Mes annonces</a><span class="sep">/</span>
       <span>Nouvelle annonce</span>
     </nav>
     <h1 class="section-title">+ Nouvelle annonce</h1>
@@ -122,10 +122,33 @@ include __DIR__ . '/../includes/header.php';
 
       <div style="display:flex;gap:1rem;">
         <button type="submit" class="btn btn-primary btn-lg">Publier l'annonce 🚀</button>
-        <a href="/seller/products.php" class="btn btn-secondary btn-lg">Annuler</a>
+        <a href="<?= BASE_URL ?>seller/products.php" class="btn btn-secondary btn-lg">Annuler</a>
       </div>
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById('product-images').addEventListener('change', function(event) {
+    const previewContainer = document.getElementById('image-preview');
+    previewContainer.innerHTML = ''; // Vider les anciennes prévisualisations
+    if (this.files) {
+        Array.from(this.files).forEach(file => {
+            if (!file.type.startsWith('image/')){ return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '80px';
+                img.style.height = '80px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = 'var(--radius)';
+                previewContainer.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -13,7 +13,7 @@ $id       = (int)($_GET['id'] ?? 0);
 $stmt = $pdo->prepare("SELECT * FROM products WHERE id = ? AND seller_id = ?");
 $stmt->execute([$id, $sellerId]);
 $product = $stmt->fetch();
-if (!$product) { header('Location: /seller/products.php'); exit; }
+if (!$product) { header('Location: ' . BASE_URL . 'seller/products.php'); exit; }
 
 $categories = $pdo->query("SELECT * FROM categories ORDER BY name")->fetchAll();
 $errors     = [];
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $pdo->prepare("UPDATE products SET name=?,description=?,price=?,stock=?,condition_p=?,category_id=?,images=?,status='pending' WHERE id=?")->execute([$values['name'],$values['description'],$values['price'],$values['stock'],$values['condition_p'],$values['category_id'],json_encode($existingImages),$id]);
         flash('success', '✅ Annonce mise à jour (en attente de validation).');
-        header('Location: /seller/products.php');
+        header('Location: ' . BASE_URL . 'seller/products.php');
         exit;
     }
 }
@@ -61,8 +61,8 @@ include __DIR__ . '/../includes/header.php';
 <div class="page-wrap">
   <div class="container-md">
     <nav class="breadcrumb">
-      <a href="/seller/dashboard.php">Dashboard</a><span class="sep">/</span>
-      <a href="/seller/products.php">Mes annonces</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>seller/dashboard.php">Dashboard</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>seller/products.php">Mes annonces</a><span class="sep">/</span>
       <span>Modifier</span>
     </nav>
     <h1 class="section-title">✏️ Modifier l'annonce</h1>
@@ -126,8 +126,8 @@ include __DIR__ . '/../includes/header.php';
 
       <div style="display:flex;gap:1rem;flex-wrap:wrap;">
         <button type="submit" class="btn btn-primary">Sauvegarder ✅</button>
-        <a href="/seller/products.php" class="btn btn-secondary">Annuler</a>
-        <form method="post" action="/seller/product-delete.php" style="margin-left:auto;" onsubmit="return confirm('Supprimer cette annonce définitivement ?')">
+        <a href="<?= BASE_URL ?>seller/products.php" class="btn btn-secondary">Annuler</a>
+        <form method="post" action="<?= BASE_URL ?>seller/product-delete.php" style="margin-left:auto;" onsubmit="return confirm('Supprimer cette annonce définitivement ?')">
           <input type="hidden" name="csrf" value="<?= csrfToken() ?>" />
           <input type="hidden" name="product_id" value="<?= $id ?>" />
           <button type="submit" class="btn btn-danger">🗑 Supprimer</button>
@@ -136,5 +136,28 @@ include __DIR__ . '/../includes/header.php';
     </form>
   </div>
 </div>
+
+<script>
+document.getElementById('product-images').addEventListener('change', function(event) {
+    const previewContainer = document.getElementById('image-preview');
+    previewContainer.innerHTML = ''; // Vider les prévisualisations précédentes
+    if (this.files) {
+        Array.from(this.files).forEach(file => {
+            if (!file.type.startsWith('image/')){ return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.style.width = '80px';
+                img.style.height = '80px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = 'var(--radius)';
+                previewContainer.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        });
+    }
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

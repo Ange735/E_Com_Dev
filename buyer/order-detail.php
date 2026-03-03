@@ -32,8 +32,8 @@ include __DIR__ . '/../includes/header.php';
 <div class="page-wrap">
   <div class="container-md">
     <nav class="breadcrumb">
-      <a href="/">Accueil</a><span class="sep">/</span>
-      <a href="/buyer/orders.php">Mes commandes</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>index.php">Accueil</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>buyer/orders.php">Mes commandes</a><span class="sep">/</span>
       <span>#<?= $orderId ?></span>
     </nav>
 
@@ -77,7 +77,7 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <div style="margin-top:1.5rem;">
-      <a href="/buyer/orders.php" class="btn btn-secondary">← Retour à mes commandes</a>
+      <a href="<?= BASE_URL ?>buyer/orders.php" class="btn btn-secondary">← Retour à mes commandes</a>
     </div>
   </div>
 </div>

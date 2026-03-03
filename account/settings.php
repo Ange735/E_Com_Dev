@@ -37,7 +37,7 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="page-wrap">
   <div class="container-sm">
-    <nav class="breadcrumb"><a href="/account/profile.php">Mon Profil</a><span class="sep">/</span><span>Paramètres</span></nav>
+    <nav class="breadcrumb"><a href="<?= BASE_URL ?>account/profile.php">Mon Profil</a><span class="sep">/</span><span>Paramètres</span></nav>
     <h1 class="section-title">⚙️ Paramètres du compte</h1>
 
     <?php if ($success): ?><div class="alert alert-success">✓ Mot de passe modifié avec succès.</div><?php endif; ?>
@@ -64,7 +64,7 @@ include __DIR__ . '/../includes/header.php';
     </form>
 
     <div style="margin-top:1.5rem;">
-      <a href="/account/profile.php" class="btn btn-secondary">← Retour au profil</a>
+      <a href="<?= BASE_URL ?>account/profile.php" class="btn btn-secondary">← Retour au profil</a>
     </div>
   </div>
 </div>

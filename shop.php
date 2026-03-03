@@ -6,6 +6,14 @@ session_start();
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
+// Récupérer la wishlist de l'utilisateur pour afficher l'état des boutons
+$wishlist = [];
+if (isLoggedIn()) {
+    $stmt = $pdo->prepare("SELECT product_id FROM wishlist WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $wishlist = $stmt->fetchAll(PDO::FETCH_COLUMN);
+}
+
 $catSlug   = sanitize($_GET['cat']   ?? '');
 $sortBy    = sanitize($_GET['sort']  ?? 'new');
 $search    = sanitize($_GET['q']     ?? '');
@@ -35,7 +43,6 @@ $orderStr = match($sortBy) {
     default      => 'p.created_at DESC',
 };
 
-$total   = (int)$pdo->prepare("SELECT COUNT(*) FROM products p $whereStr")->execute($params) ? $pdo->query("SELECT COUNT(*) FROM products p $whereStr")->fetchColumn() : 0;
 $countStmt = $pdo->prepare("SELECT COUNT(*) FROM products p $whereStr");
 $countStmt->execute($params);
 $total    = (int)$countStmt->fetchColumn();
@@ -67,23 +74,23 @@ include 'includes/header.php';
   </div>
 </div>
 
-<div class="page-wrap" style="padding-top:2rem;">
+<div class="page-wrap">
   <div class="container">
 
     <nav class="breadcrumb">
-      <a href="/">Accueil</a><span class="sep">/</span>
-      <a href="/shop.php">Catalogue</a>
+      <a href="<?= BASE_URL ?>index.php">Accueil</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>shop.php">Catalogue</a>
       <?php if ($currentCat): ?><span class="sep">/</span><span><?= e($currentCat['name']) ?></span><?php endif; ?>
     </nav>
 
     <!-- Search bar -->
-    <form method="get" action="/shop.php" style="margin-bottom:1.5rem;">
+    <form method="get" action="<?= BASE_URL ?>shop.php" style="margin-bottom:1.5rem;">
       <?php if ($catSlug): ?><input type="hidden" name="cat" value="<?= e($catSlug) ?>" /><?php endif; ?>
       <div style="display:flex;gap:.5rem;">
         <input class="form-control" type="text" name="q" value="<?= e($search) ?>" placeholder="Rechercher une annonce…" style="flex:1;"/>
         <button type="submit" class="btn btn-primary">Rechercher</button>
         <?php if ($search || $catSlug || $condition): ?>
-        <a href="/shop.php" class="btn btn-secondary">✕ Reset</a>
+        <a href="<?= BASE_URL ?>shop.php" class="btn btn-secondary">✕ Reset</a>
         <?php endif; ?>
       </div>
     </form>
@@ -94,9 +101,9 @@ include 'includes/header.php';
       <aside style="width:220px;flex-shrink:0;position:sticky;top:calc(var(--nav-h)+1rem);">
         <div class="card" style="padding:1.2rem;">
           <h3 style="font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1rem;">Catégories</h3>
-          <a href="/shop.php<?= $search ? '?q='.urlencode($search) : '' ?>" style="display:block;padding:.4rem .5rem;font-size:.83rem;border-radius:6px;color:<?= !$catSlug?'var(--green-lt)':'var(--text)' ?>;font-weight:<?= !$catSlug?'600':'400' ?>;">Toutes les catégories</a>
+          <a href="<?= BASE_URL ?>shop.php<?= $search ? '?q='.urlencode($search) : '' ?>" style="display:block;padding:.4rem .5rem;font-size:.83rem;border-radius:6px;color:<?= !$catSlug?'var(--green-lt)':'var(--text)' ?>;font-weight:<?= !$catSlug?'600':'400' ?>;">Toutes les catégories</a>
           <?php foreach ($categories as $cat): ?>
-          <a href="/shop.php?cat=<?= e($cat['slug']) ?><?= $search ? '&q='.urlencode($search) : '' ?>" style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;font-size:.83rem;border-radius:6px;color:<?= $catSlug===$cat['slug']?'var(--green-lt)':'var(--text)' ?>;font-weight:<?= $catSlug===$cat['slug']?'600':'400' ?>;">
+          <a href="<?= BASE_URL ?>shop.php?cat=<?= e($cat['slug']) ?><?= $search ? '&q='.urlencode($search) : '' ?>" style="display:flex;align-items:center;gap:.5rem;padding:.4rem .5rem;font-size:.83rem;border-radius:6px;color:<?= $catSlug===$cat['slug']?'var(--green-lt)':'var(--text)' ?>;font-weight:<?= $catSlug===$cat['slug']?'600':'400' ?>;">
             <?= $cat['icon'] ?> <?= e($cat['name']) ?>
           </a>
           <?php endforeach; ?>
@@ -141,11 +148,15 @@ include 'includes/header.php';
           ?>
           <div class="product-card" data-reveal data-delay="<?= ($i%4)+1 ?>">
             <div class="product-img-wrap">
-              <a href="/product.php?id=<?= $p['id'] ?>">
+              <a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>">
                 <img src="<?= e($img) ?>" alt="<?= e($p['name']) ?>" loading="lazy" />
               </a>
-              <?php if (isLoggedIn()): ?>
-              <button class="product-wish" data-wish="<?= $p['id'] ?>">♡</button>
+              <?php if (isLoggedIn() && $p['seller_id'] != $_SESSION['user_id']):
+                $isWished = in_array($p['id'], $wishlist);
+              ?>
+              <button class="product-wish <?= $isWished ? 'active' : '' ?>" data-wish="<?= $p['id'] ?>" title="Ajouter à la wishlist">
+                <?= $isWished ? '♥' : '♡' ?>
+              </button>
               <?php endif; ?>
               <div class="product-badge">
                 <span class="badge badge-<?= $p['condition_p']==='neuf'?'green':($p['condition_p']==='bon_etat'?'blue':'muted') ?>">
@@ -160,7 +171,7 @@ include 'includes/header.php';
               <div class="product-price"><?= formatPrice((float)$p['price']) ?></div>
             </div>
             <div class="product-footer">
-              <a href="/product.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir l'annonce</a>
+              <a href="<?= BASE_URL ?>product.php?id=<?= $p['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir l'annonce</a>
             </div>
           </div>
           <?php endforeach; ?>

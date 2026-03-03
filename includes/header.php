@@ -1,138 +1,84 @@
-<?php
-/**
- * includes/header.php
- * Variables attendues avant l'include :
- *   $pageTitle  (string)
- *   $activeNav  (string) — 'home' | 'shop' | 'account' | ...
- */
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once __DIR__ . '/functions.php';
-
-$pageTitle ??= 'ENSAM Market';
-$activeNav ??= '';
-$user       = currentUser();
-$cartCount  = 0;
-if ($user) {
-    require_once __DIR__ . '/db.php';
-    $cartCount = getCartCount($pdo, $user['id']);
-}
-$flash = getFlash();
-?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?= e($pageTitle) ?> — ENSAM Market</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="/assets/css/style.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= isset($pageTitle) ? e($pageTitle) . ' — ' : '' ?>ENSAM Market</title>
+    
+    <!-- Lien vers le CSS (Chemin absolu pour XAMPP) -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    
+    <!-- Polices Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-inner">
-      <!-- Logo -->
-      <a href="/" class="nav-logo">
-        <span>ENSAM</span><span class="nav-logo-dot">●</span><span>Market</span>
-      </a>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="container nav-inner">
+        <!-- Logo -->
+        <a href="<?= BASE_URL ?>index.php" class="nav-logo">
+            ENSAM<span class="nav-logo-dot">●</span>Market
+        </a>
 
-      <!-- Links -->
-      <div class="nav-links">
-        <a href="/"   class="<?= $activeNav==='home'  ? 'active':'' ?>">Accueil</a>
-        <a href="/shop.php"    class="<?= $activeNav==='shop'  ? 'active':'' ?>">Catalogue</a>
-        <?php if ($user && $user['mode_actuel'] === 'seller'): ?>
-        <a href="/seller/dashboard.php" class="<?= $activeNav==='seller' ? 'active':'' ?>">Mon Espace Vendeur</a>
-        <?php endif; ?>
-        <?php if ($user && $user['role'] === 'admin'): ?>
-        <a href="/admin/index.php" class="<?= $activeNav==='admin' ? 'active':'' ?>">Admin</a>
-        <?php endif; ?>
-      </div>
-
-      <!-- Right actions -->
-      <div class="nav-right">
-        <?php if ($user): ?>
-          <!-- Mode badge -->
-          <span class="nav-mode-badge nav-mode-<?= $user['mode_actuel'] ?>">
-            <?= $user['mode_actuel'] === 'seller' ? '🏪 Vendeur' : '🛍 Acheteur' ?>
-          </span>
-
-          <!-- Cart -->
-          <a href="buyer/cart.php" class="nav-icon" title="Panier">
-            🛒
-            <?php if ($cartCount > 0): ?>
-            <span class="badge-count"><?= $cartCount ?></span>
+        <!-- Liens Desktop -->
+        <div class="nav-links">
+            <a href="<?= BASE_URL ?>index.php" class="<?= ($activeNav ?? '') === 'home' ? 'active' : '' ?>">Accueil</a>
+            <a href="<?= BASE_URL ?>shop.php" class="<?= ($activeNav ?? '') === 'shop' ? 'active' : '' ?>">Catalogue</a>
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>buyer/orders.php">Mes Commandes</a>
             <?php endif; ?>
-          </a>
+        </div>
 
-          <!-- User dropdown -->
-          <div class="nav-dropdown">
-            <div class="nav-avatar">
-              <?php if ($user['avatar']): ?>
-                <img src="<?= e($user['avatar']) ?>" alt="avatar" />
-              <?php else: ?>
-                <?= mb_strtoupper(mb_substr($user['prenom'], 0, 1)) ?>
-              <?php endif; ?>
-            </div>
-            <div class="dropdown-menu">
-              <div style="padding:.6rem .8rem 0;">
-                <div style="font-weight:600;color:var(--white);font-size:.88rem;"><?= e($user['prenom'].' '.$user['nom']) ?></div>
-                <div style="font-size:.72rem;color:var(--muted);"><?= e($user['filiere'] ?? '') ?> · <?= e($user['promo'] ?? '') ?></div>
-              </div>
-              <div class="dropdown-divider"></div>
-              <a href="/account/profile.php"          class="dropdown-item">👤 Mon Profil</a>
-              <a href="/buyer/orders.php"              class="dropdown-item">📦 Mes Commandes</a>
-              <a href="/buyer/wishlist.php"            class="dropdown-item">❤️ Wishlist</a>
-              <a href="/account/switch-mode.php"       class="dropdown-item">🔄 Changer de mode</a>
-              <?php if ($user['mode_actuel'] === 'seller'): ?>
-              <a href="/seller/dashboard.php"          class="dropdown-item">🏪 Dashboard Vendeur</a>
-              <?php endif; ?>
-              <div class="dropdown-divider"></div>
-              <a href="/auth/logout.php"               class="dropdown-item danger">🚪 Déconnexion</a>
-            </div>
-          </div>
+        <!-- Droite (Panier + User) -->
+        <div class="nav-right">
+            <?php if (isLoggedIn()): 
+                $u = currentUser();
+                $cartCount = getCartCount($pdo, $_SESSION['user_id']);
+            ?>
+                <!-- Mode Badge -->
+                <span class="nav-mode-badge <?= $u['mode_actuel'] === 'seller' ? 'nav-mode-seller' : 'nav-mode-buyer' ?>">
+                    <?= $u['mode_actuel'] === 'seller' ? 'Vendeur' : 'Acheteur' ?>
+                </span>
 
-        <?php else: ?>
-          <a href="/auth/login.php"    class="btn btn-outline btn-sm">Connexion</a>
-          <a href="/auth/register.php" class="btn btn-primary btn-sm">S'inscrire</a>
-        <?php endif; ?>
+                <!-- Panier -->
+                <a href="<?= BASE_URL ?>buyer/cart.php" class="nav-icon">
+                    🛒
+                    <?php if ($cartCount > 0): ?>
+                        <span class="badge-count"><?= $cartCount ?></span>
+                    <?php endif; ?>
+                </a>
 
-        <!-- Hamburger -->
-        <button class="hamburger" id="hamburger">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+                <!-- Dropdown User -->
+                <div class="nav-dropdown">
+                    <div class="nav-avatar">
+                        <?= mb_strtoupper(mb_substr($u['prenom'], 0, 1)) ?>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div style="padding: .8rem 1rem; border-bottom:1px solid #333;">
+                            <div style="font-weight:600;color:#fff;"><?= e($u['prenom'] . ' ' . $u['nom']) ?></div>
+                            <div style="font-size:.75rem;color:#888;"><?= e($u['email']) ?></div>
+                        </div>
+                        <a href="<?= BASE_URL ?>account/profile.php" class="dropdown-item">Mon Profil</a>
+                        <a href="<?= BASE_URL ?>buyer/wishlist.php" class="dropdown-item">Ma Wishlist</a>
+                        <a href="<?= BASE_URL ?>account/switch-mode.php" class="dropdown-item">
+                            Passer en mode <?= $u['mode_actuel'] === 'seller' ? 'Acheteur' : 'Vendeur' ?>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="<?= BASE_URL ?>auth/logout.php" class="dropdown-item danger">Déconnexion</a>
+                    </div>
+                </div>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>auth/login.php" class="btn btn-outline btn-sm">Connexion</a>
+                <a href="<?= BASE_URL ?>auth/register.php" class="btn btn-primary btn-sm">Inscription</a>
+            <?php endif; ?>
+
+            <!-- Mobile Toggle -->
+            <button class="hamburger" onclick="document.querySelector('.mobile-nav').style.display = document.querySelector('.mobile-nav').style.display==='flex'?'none':'flex'">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
     </div>
-  </div>
 </nav>
-
-<!-- Mobile nav -->
-<div class="mobile-nav" id="mobile-nav">
-  <a href="/">🏠 Accueil</a>
-  <a href="/shop.php">🛍 Catalogue</a>
-  <?php if ($user): ?>
-  <a href="/buyer/cart.php">🛒 Panier (<?= $cartCount ?>)</a>
-  <a href="/buyer/orders.php">📦 Mes commandes</a>
-  <a href="/account/profile.php">👤 Mon profil</a>
-  <a href="/account/switch-mode.php">🔄 Changer de mode</a>
-  <?php if ($user['mode_actuel'] === 'seller'): ?>
-  <a href="/seller/dashboard.php">🏪 Espace Vendeur</a>
-  <?php endif; ?>
-  <a href="/auth/logout.php">🚪 Déconnexion</a>
-  <?php else: ?>
-  <a href="/auth/login.php">🔑 Connexion</a>
-  <a href="/auth/register.php">✏️ S'inscrire</a>
-  <?php endif; ?>
-</div>
-
-<!-- Flash message -->
-<?php if ($flash): ?>
-<div style="position:fixed;top:calc(var(--nav-h)+.8rem);left:50%;transform:translateX(-50%);z-index:9999;min-width:300px;max-width:500px;">
-  <div class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['msg']) ?></div>
-</div>
-<script>setTimeout(()=>document.querySelector('.alert')?.remove(), 4000);</script>
-<?php endif; ?>
-
-<main>

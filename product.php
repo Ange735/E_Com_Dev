@@ -55,9 +55,9 @@ include 'includes/header.php';
   <div class="container">
 
     <nav class="breadcrumb">
-      <a href="/">Accueil</a><span class="sep">/</span>
-      <a href="/shop.php">Catalogue</a><span class="sep">/</span>
-      <a href="/shop.php?cat=<?= e($p['cat_slug']) ?>"><?= e($p['cat_icon'].' '.$p['cat_name']) ?></a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>index.php">Accueil</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>shop.php">Catalogue</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>shop.php?cat=<?= e($p['cat_slug']) ?>"><?= e($p['cat_icon'].' '.$p['cat_name']) ?></a><span class="sep">/</span>
       <span><?= e($p['name']) ?></span>
     </nav>
 
@@ -115,9 +115,9 @@ include 'includes/header.php';
         <?php if (isLoggedIn()):
           $isMine = ($_SESSION['user']['id'] === $p['seller_id']); ?>
         <?php if ($isMine): ?>
-          <div class="alert alert-info">📌 C'est votre annonce. <a href="/seller/product-edit.php?id=<?= $p['id'] ?>" style="color:var(--gold);">Modifier</a></div>
+          <div class="alert alert-info">📌 C'est votre annonce. <a href="<?= BASE_URL ?>seller/product-edit.php?id=<?= $p['id'] ?>" style="color:var(--gold);">Modifier</a></div>
         <?php else: ?>
-          <form method="post" action="/buyer/cart.php">
+          <form method="post" action="<?= BASE_URL ?>buyer/cart.php">
             <input type="hidden" name="action" value="add" />
             <input type="hidden" name="product_id" value="<?= $p['id'] ?>" />
             <div style="display:flex;gap:.8rem;margin-bottom:1rem;">
@@ -136,7 +136,7 @@ include 'includes/header.php';
           </form>
         <?php endif; ?>
         <?php else: ?>
-          <a href="/auth/login.php" class="btn btn-primary btn-full btn-lg">Connecte-toi pour acheter</a>
+          <a href="<?= BASE_URL ?>auth/login.php" class="btn btn-primary btn-full btn-lg">Connecte-toi pour acheter</a>
         <?php endif; ?>
 
         <!-- Meta -->
@@ -170,7 +170,7 @@ include 'includes/header.php';
     <!-- Produits similaires -->
     <?php if (!empty($similarProducts)): ?>
     <div>
-      <div class="section-header"><h2 class="section-title">Articles similaires</h2><a href="/shop.php?cat=<?= e($p['cat_slug']) ?>" class="btn btn-outline btn-sm">Voir tout →</a></div>
+      <div class="section-header"><h2 class="section-title">Articles similaires</h2><a href="<?= BASE_URL ?>shop.php?cat=<?= e($p['cat_slug']) ?>" class="btn btn-outline btn-sm">Voir tout →</a></div>
       <div class="products-grid">
         <?php foreach ($similarProducts as $sp):
           $si = json_decode($sp['images']??'[]',true);
@@ -178,14 +178,14 @@ include 'includes/header.php';
         ?>
         <div class="product-card">
           <div class="product-img-wrap">
-            <a href="/product.php?id=<?= $sp['id'] ?>"><img src="<?= e($si) ?>" alt="<?= e($sp['name']) ?>" loading="lazy"/></a>
+            <a href="<?= BASE_URL ?>product.php?id=<?= $sp['id'] ?>"><img src="<?= e($si) ?>" alt="<?= e($sp['name']) ?>" loading="lazy"/></a>
           </div>
           <div class="product-info">
             <div class="product-name"><?= e($sp['name']) ?></div>
             <div class="product-seller">par <?= e($sp['prenom'].' '.$sp['nom']) ?></div>
             <div class="product-price"><?= formatPrice((float)$sp['price']) ?></div>
           </div>
-          <div class="product-footer"><a href="/product.php?id=<?= $sp['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir</a></div>
+          <div class="product-footer"><a href="<?= BASE_URL ?>product.php?id=<?= $sp['id'] ?>" class="btn btn-secondary btn-sm btn-full">Voir</a></div>
         </div>
         <?php endforeach; ?>
       </div>

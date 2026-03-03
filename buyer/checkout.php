@@ -9,7 +9,7 @@ require_once __DIR__ . '/../includes/auth-guard.php';
 
 $userId = $_SESSION['user_id'];
 $items  = getCartItems($pdo, $userId);
-if (empty($items)) { header('Location: /buyer/cart.php'); exit; }
+if (empty($items)) { header('Location: ' . BASE_URL . 'buyer/cart.php'); exit; }
 
 $subtotal = array_sum(array_map(fn($i) => $i['price'] * $i['qty'], $items));
 $errors   = [];
@@ -24,18 +24,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         $pdo->beginTransaction();
         try {
+            // Verrouiller les articles du panier et vérifier le stock de manière atomique
+            $productIds = array_map(fn($i) => $i['product_id'], $items);
+            if (empty($productIds)) {
+                throw new \Exception('Votre panier est vide.');
+            }
+            $placeholders = implode(',', array_fill(0, count($productIds), '?'));
+            $stmt = $pdo->prepare("SELECT id, stock, name FROM products WHERE id IN ($placeholders) FOR UPDATE");
+            $stmt->execute($productIds);
+            $dbProducts = $stmt->fetchAll(\PDO::FETCH_UNIQUE);
+
+            foreach ($items as $item) {
+                if (!isset($dbProducts[$item['product_id']])) {
+                    throw new \Exception("L'article « " . e($item['name']) . " » n'est plus disponible.");
+                }
+                if ($dbProducts[$item['product_id']]['stock'] < $item['qty']) {
+                    throw new \Exception("Stock insuffisant pour « " . e($item['name']) . " ». Il ne reste que " . $dbProducts[$item['product_id']]['stock'] . " exemplaire(s).");
+                }
+            }
+
             // Créer la commande
             $stmt = $pdo->prepare("INSERT INTO orders (buyer_id, total, status, address, note) VALUES (?,?,?,?,?)");
             $stmt->execute([$userId, $subtotal, 'pending', $address, $note]);
             $orderId = (int)$pdo->lastInsertId();
 
             // Ajouter les items et décrémenter le stock
-            $stmtItem  = $pdo->prepare("INSERT INTO order_items (order_id,product_id,seller_id,qty,price_unit) VALUES (?,?,?,?,?)");
-            $stmtStock = $pdo->prepare("UPDATE products SET stock = stock - ? WHERE id = ? AND stock >= ?");
+            $stmtItem  = $pdo->prepare("INSERT INTO order_items (order_id, product_id, seller_id, qty, price_unit) VALUES (?,?,?,?,?)");
+            $stmtStock = $pdo->prepare("UPDATE products SET stock = stock - ? WHERE id = ?");
 
             foreach ($items as $item) {
-                $stmtItem->execute([$orderId,$item['product_id'],$item['seller_id'],$item['qty'],$item['price']]);
-                $stmtStock->execute([$item['qty'],$item['product_id'],$item['qty']]);
+                $stmtItem->execute([$orderId, $item['product_id'], $item['seller_id'], $item['qty'], $item['price']]);
+                $stmtStock->execute([$item['qty'], $item['product_id']]);
             }
 
             // Vider le panier
@@ -43,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->commit();
 
             flash('success', '🎉 Commande #'.$orderId.' passée avec succès !');
-            header('Location: /buyer/order-detail.php?id='.$orderId);
+            header('Location: ' . BASE_URL . 'buyer/order-detail.php?id='.$orderId);
             exit;
         } catch (\Exception $e) {
             $pdo->rollBack();
@@ -60,8 +79,8 @@ include __DIR__ . '/../includes/header.php';
 <div class="page-wrap">
   <div class="container-md">
     <nav class="breadcrumb">
-      <a href="/">Accueil</a><span class="sep">/</span>
-      <a href="/buyer/cart.php">Panier</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>index.php">Accueil</a><span class="sep">/</span>
+      <a href="<?= BASE_URL ?>buyer/cart.php">Panier</a><span class="sep">/</span>
       <span>Finaliser</span>
     </nav>
     <h1 class="section-title">✅ Finaliser ma commande</h1>
@@ -72,7 +91,7 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="cart-layout">
       <div>
-        <form method="post" action="/buyer/checkout.php">
+        <form method="post" action="<?= BASE_URL ?>buyer/checkout.php">
           <input type="hidden" name="csrf" value="<?= csrfToken() ?>" />
 
           <div class="card" style="margin-bottom:1.5rem;">

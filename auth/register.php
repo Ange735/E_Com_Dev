@@ -25,19 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password          = $_POST['password']          ?? '';
     $confirm           = $_POST['confirm']           ?? '';
 
-    // Validations
     if (strlen($values['nom'])    < 2) $errors[] = 'Nom invalide.';
     if (strlen($values['prenom']) < 2) $errors[] = 'Prénom invalide.';
-    if (!filter_var($values['email'], FILTER_VALIDATE_EMAIL))    $errors[] = 'Email invalide.';
-    // Optionnel : forcer l'email ENSAM
-    // if (!str_ends_with($values['email'], '@ensam.ac.ma'))       $errors[] = 'Utilisez votre email ENSAM (@ensam.ac.ma).';
+    if (!filter_var($values['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'Email invalide.';
     if (strlen($password) < 8)    $errors[] = 'Mot de passe : minimum 8 caractères.';
     if ($password !== $confirm)   $errors[] = 'Les mots de passe ne correspondent pas.';
     if (!isset($filieres[$values['filiere']])) $errors[] = 'Filière invalide.';
     if (empty($values['promo']) || !in_array($values['promo'], $promos)) $errors[] = 'Promotion invalide.';
 
     if (empty($errors)) {
-        // Vérifier email unique
         $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$values['email']]);
         if ($stmt->fetch()) {
@@ -51,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $newId = (int)$pdo->lastInsertId();
 
-            // Auto-login
             $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
             $stmt->execute([$newId]);
             $user = $stmt->fetch();
@@ -73,6 +68,165 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css"/>
+
+  <!-- CSS intégré respectant ton thème et grid corrigé -->
+  <style>
+    body {
+        background-color: var(--deep);
+        color: var(--text);
+        font-family: var(--font-body);
+    }
+
+    .auth-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+    }
+
+    .auth-card {
+        background-color: #1a1a1a;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+        max-width: 480px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .auth-logo {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .nav-logo {
+        font-family: var(--font-head);
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: var(--white);
+    }
+
+    .nav-logo-dot {
+        color: var(--green-lt);
+    }
+
+    .auth-title {
+        text-align: center;
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        color: var(--white);
+    }
+
+    .auth-sub {
+        text-align: center;
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+    }
+
+    .alert {
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert-error {
+        background-color: #2c2c2c;
+        color: #ff5c5c;
+        border: 1px solid #ff5c5c;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.3rem;
+        font-size: 0.95rem;
+        color: var(--text);
+    }
+
+    .form-label span {
+        color: #ff5c5c;
+    }
+
+    .form-control {
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem;
+        color: var(--white);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--green-lt);
+        box-shadow: 0 0 5px rgba(46,196,124,0.4);
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+    }
+
+    /* Grid Filière / Promotion corrigé */
+    .auth-card form > div[style*="grid-template-columns"] {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        width: 100%;
+    }
+
+    .btn {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background-color: var(--green);
+        color: var(--white);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--green-lt);
+    }
+
+    .btn-full { width: 100%; }
+
+    .btn-lg { font-size: 1.05rem; padding: 0.85rem 1rem; }
+
+    .auth-switch {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+
+    .auth-switch a {
+        color: var(--green-lt);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-switch a:hover {
+        text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
 <div class="auth-wrap">

@@ -1,9 +1,15 @@
+<?php
+// Assure que $pdo existe avant toute utilisation
+if (!isset($pdo)) {
+    require_once __DIR__ . '/db.php';
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><?= e($pageTitle) ?> — ENSAM Market</title>
+  <title><?= e($pageTitle ?? 'ENSAM Market') ?> — ENSAM Market</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css" />
@@ -32,6 +38,10 @@
         <div class="nav-right">
             <?php if (isLoggedIn()): 
                 $u = currentUser();
+
+                // S'assure que $pdo existe pour le panier
+                if (!isset($pdo)) { require_once __DIR__ . '/db.php'; }
+
                 $cartCount = getCartCount($pdo, $_SESSION['user_id']);
             ?>
                 <!-- Mode Badge -->
@@ -78,3 +88,16 @@
         </div>
     </div>
 </nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" style="display:none;flex-direction:column;">
+    <a href="<?= BASE_URL ?>index.php">Accueil</a>
+    <a href="<?= BASE_URL ?>shop.php">Catalogue</a>
+    <?php if (isLoggedIn()): ?>
+        <a href="<?= BASE_URL ?>buyer/orders.php">Mes Commandes</a>
+        <a href="<?= BASE_URL ?>buyer/cart.php">Panier</a>
+    <?php else: ?>
+        <a href="<?= BASE_URL ?>auth/login.php">Connexion</a>
+        <a href="<?= BASE_URL ?>auth/register.php">Inscription</a>
+    <?php endif; ?>
+</div>

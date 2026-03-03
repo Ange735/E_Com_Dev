@@ -6,7 +6,7 @@ session_start();
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-if (isLoggedIn()) { header('Location: /index.php'); exit; }
+if (isLoggedIn()) { header('Location: ' . BASE_URL . 'index.php'); exit; }
 
 $errors = [];
 $values = ['nom'=>'','prenom'=>'','email'=>'','filiere'=>'','promo'=>''];
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Inscription — ENSAM Market</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css"/>
 </head>
 <body>
 <div class="auth-wrap">

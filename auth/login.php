@@ -6,7 +6,7 @@ session_start();
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
-if (isLoggedIn()) { header('Location: /index.php'); exit; }
+if (isLoggedIn()) { header('Location: ' . BASE_URL . 'index.php'); exit; }
 
 $error  = '';
 $email  = '';
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user']    = $user;
 
-                $redirect = $_SESSION['redirect_after_login'] ?? '/index.php';
+                $redirect = $_SESSION['redirect_after_login'] ?? BASE_URL . 'index.php';
                 unset($_SESSION['redirect_after_login']);
                 flash('success', 'Bon retour, ' . e($user['prenom']) . ' !');
                 header('Location: ' . $redirect);
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <title>Connexion — ENSAM Market</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link rel="stylesheet" href="/assets/css/style.css"/>
+  <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css"/>
 </head>
 <body>
 <div class="auth-wrap">
